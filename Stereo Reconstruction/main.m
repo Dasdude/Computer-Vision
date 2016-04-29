@@ -23,7 +23,7 @@ imshow([I1 I2]); hold on;
 plot(matches(:,1), matches(:,2), '+r');
 plot(matches(:,3)+size(I1,2), matches(:,4), '+r');
 line([matches(:,1) matches(:,3) + size(I1,2)]', matches(:,[2 4])', 'Color', 'r');
-pause;
+% pause;
 
 %%
 %% display second image with epipolar lines reprojected 
@@ -52,3 +52,19 @@ imshow(I2); hold on;
 plot(matches(:,3), matches(:,4), '+r');
 line([matches(:,3) closest_pt(:,1)]', [matches(:,4) closest_pt(:,2)]', 'Color', 'r');
 line([pt1(:,1) pt2(:,1)]', [pt1(:,2) pt2(:,2)]', 'Color', 'g');
+%% Reconstruction
+p1 = load('./Data/house1_camera.txt');
+
+p2 = load('./Data/house2_camera.txt');
+c1 = findCameraposition(p1);
+c2 = findCameraposition(p2);
+X = Reconstructor(matches(:,1:2)',matches(:,3:4)',p1,p2);
+figure;
+plot3(X(1,:),X(2,:),X(3,:),'.b');
+hold on
+plot3(c1(1),c1(2),c1(3),'Xg');
+plot3(c2(1),c2(2),c2(3),'Xr');
+showExtrinsics
+% plot3d(X,'b');
+
+
