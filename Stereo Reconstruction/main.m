@@ -11,9 +11,12 @@ matches = load('./Data/house_matches.txt');
 % are coordinates of corresponding corners in the second image: 
 % matches(i,1:2) is a point in the first image
 % matches(i,3:4) is a corresponding point in the second image
-
+% Visualize correspondences
+figure;
+showMatchedFeatures(I1, I2, matchedPoints1, matchedPoints2);
+title('Original Matched Features from Globe01 and Globe02');
 N = size(matches,1);
-
+figure
 %%
 %% display two images side-by-side with matches
 %% this code is to help you visualize the matches, 
@@ -32,6 +35,7 @@ line([matches(:,1) matches(:,3) + size(I1,2)]', matches(:,[2 4])', 'Color', 'r')
 
 % first, fit fundamental matrix to the matches
 F = fit_fundamental(matches); % this is the function that you need 
+
 %% to build to call Peter Kovesi's 8-point algorithm implementation
 L = [matches(:,1:2) ones(N,1)] * F; % transform points from 
 % the first image to get epipolar lines in the second image
@@ -58,13 +62,21 @@ p1 = load('./Data/house1_camera.txt');
 p2 = load('./Data/house2_camera.txt');
 c1 = findCameraposition(p1);
 c2 = findCameraposition(p2);
-X = Reconstructor(matches(:,1:2)',matches(:,3:4)',p1,p2);
+X = Reconstructor(matches(:,1:2)',matches(:,3:4)',p1,p2,F,'o');
+x1bp = p1*X;
+for i = 1:size(x1bp,2)
+    x1bp(:,i) = x1bp(:,i)/x1bp(3,i);
+end
+x1bp-matches
+
 figure;
 plot3(X(1,:),X(2,:),X(3,:),'.b');
 hold on
-plot3(c1(1),c1(2),c1(3),'Xg');
-plot3(c2(1),c2(2),c2(3),'Xr');
-showExtrinsics
+axis equall
+
+
+% plot3(c1(1),c1(2),c1(3),'Xg');
+% plot3(c2(1),c2(2),c2(3),'Xr');
 % plot3d(X,'b');
 
 

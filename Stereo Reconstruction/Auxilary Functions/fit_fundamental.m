@@ -10,7 +10,7 @@ function [ F,ep1,ep2 ] = fit_fundamental( matches )
     x2 = matches(:,3:4);
     x1h = [x1,ones(N,1)]'; % x1h is 3xN matrix
     x2h = [x2,ones(N,1)]'; % x2h is 3xN matrix
-    [F,ep1,ep2] = fundmatrix(x1h,x2h);
+    [F,ep1,ep2] = fundmatrix(x2h,x1h);
 
 
 end
