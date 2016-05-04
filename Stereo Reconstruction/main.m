@@ -1,11 +1,14 @@
 close all
+clear
 %%
 %% load images and match files for the first example
 %%
-
-I1 = imread('./Data/house1.jpg');
-I2 = imread('./Data/house2.jpg');
-matches = load('./Data/house_matches.txt'); 
+name = 'house';
+loadStructure = false;
+addpath('Auxilary Functions\');
+I1 = imread(['./Data/',name,'1.jpg']);
+I2 = imread(['./Data/',name,'2.jpg']);
+matches = load(['./Data/',name,'_matches.txt']); 
 % this is a N x 4 file where the first two numbers of each row
 % are coordinates of corners in the first image and the last two
 % are coordinates of corresponding corners in the second image: 
@@ -13,7 +16,7 @@ matches = load('./Data/house_matches.txt');
 % matches(i,3:4) is a corresponding point in the second image
 % Visualize correspondences
 figure;
-showMatchedFeatures(I1, I2, matchedPoints1, matchedPoints2);
+showMatchedFeatures(I1, I2, matches(:,1:2), matches(:,3:4));
 title('Original Matched Features from Globe01 and Globe02');
 N = size(matches,1);
 figure
@@ -57,26 +60,70 @@ plot(matches(:,3), matches(:,4), '+r');
 line([matches(:,3) closest_pt(:,1)]', [matches(:,4) closest_pt(:,2)]', 'Color', 'r');
 line([pt1(:,1) pt2(:,1)]', [pt1(:,2) pt2(:,2)]', 'Color', 'g');
 %% Reconstruction
-p1 = load('./Data/house1_camera.txt');
-
-p2 = load('./Data/house2_camera.txt');
+p1 = load(['./Data/',name,'1_camera.txt']);
+p2 = load(['./Data/',name,'2_camera.txt']);
 c1 = findCameraposition(p1);
 c2 = findCameraposition(p2);
-X = Reconstructor(matches(:,1:2)',matches(:,3:4)',p1,p2,F,'o');
-x1bp = p1*X;
-for i = 1:size(x1bp,2)
-    x1bp(:,i) = x1bp(:,i)/x1bp(3,i);
+if(exist(['StructureOptimal',name,'.mat'])~=2||~loadStructure)
+    X_optimal = Reconstructor(matches(:,1:2)',matches(:,3:4)',p1,p2,F,'o');
+    save(['StructureOptimal',name,'.mat'],'X_optimal');
+else
+    load(['StructureOptimal',name,'.mat']);
 end
-x1bp-matches
-
+X_linear = Reconstructor(matches(:,1:2)',matches(:,3:4)',p1,p2,F,'l');
+x1_optimal = p1*X_optimal;
+x2_optimal = p2*X_optimal;
+x1_linear = p1*X_linear;
+x2_linear = p2*X_linear;
+%% normalize x
+x1_linear = normalizeVectorHomogeneous(x1_linear);
+x2_linear = normalizeVectorHomogeneous(x2_linear);
+x1_optimal = normalizeVectorHomogeneous(x1_optimal);
+x2_optimal = normalizeVectorHomogeneous(x2_optimal);
+%% MSE Optimal
+mse1_optimal = meanSquaredError(x1_optimal(1:2,:),matches(:,1:2)');
+mse2_optimal = meanSquaredError(x2_optimal(1:2,:),matches(:,3:4)');
+mse_optimal = mse2_optimal
+%% MSE Linear
+mse1_linear = meanSquaredError(x1_linear(1:2,:),matches(:,1:2)');
+mse2_linear = meanSquaredError(x2_linear(1:2,:),matches(:,3:4)');
+mse_linear = mse2_linear
+%% Plot back Projected points Optimal
 figure;
-plot3(X(1,:),X(2,:),X(3,:),'.b');
+imshow(I1);
+title('Optimal image1 BackProj +:optimal x:matches')
 hold on
-axis equall
+plot(x1_optimal(1,:),x1_optimal(2,:),'+r');
+plot(matches(:,1),matches(:,2),'xg');
+figure;
+imshow(I2);
+title('Optimal image2 BackProj +:optimal x:matches')
+hold on
+plot(x2_optimal(1,:),x2_optimal(2,:),'+r');
+plot(matches(:,3),matches(:,4),'xg');
+%% Plot back Projected points Linear
+figure;
+imshow(I1);
+title('linear image1 BackProj +:linear x:matches')
+hold on
+plot(x1_linear(1,:),x1_linear(2,:),'+r');
+plot(matches(:,1),matches(:,2),'xg');
+figure;
+imshow(I2);
+title('linear image2 BackProj +:linear x:matches')
+hold on
+plot(x2_linear(1,:),x2_linear(2,:),'+r');
+plot(matches(:,3),matches(:,4),'xg');
+%% Plot Structure
+figure;
+plot3(X_optimal(1,:),X_optimal(2,:),X_optimal(3,:),'.b');
+axis equal
+title(['Optimal: MSE: ',num2str(mse_optimal)])
+figure;
+plot3(X_linear(1,:),X_linear(2,:),X_linear(3,:),'.b');
+axis equal
+title(['Linear: MSE: ',num2str(mse_linear)])
 
 
-% plot3(c1(1),c1(2),c1(3),'Xg');
-% plot3(c2(1),c2(2),c2(3),'Xr');
-% plot3d(X,'b');
 
 
