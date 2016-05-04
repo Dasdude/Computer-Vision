@@ -8,7 +8,7 @@ function [ X ] = Reconstructor(x1,x2,p1,p2,fund,method)
                 x1(2,i)*p1(3,:)-p1(2,:);
                 x2(1,i)*p2(3,:)-p2(1,:); 
                 x2(2,i)*p2(3,:)-p2(2,:);];
-            [U D V] = svd(A);
+            [~,~,V] = svd(A);
             X(:,i) = V(:,end);
             X(:,i)=X(:,i)/X(4,i);
         end
@@ -60,7 +60,9 @@ function [ X ] = Reconstructor(x1,x2,p1,p2,fund,method)
                   x1bar = [-l1(1)*l1(3),-l1(2)*l1(3),l1(1)^2+l1(3)^2]';
                   x2bar = [-l2(1)*l2(3),-l2(2)*l2(3),l2(1)^2+l2(3)^2]';
                   x1bar = inv(T1)*R1'*x1bar;
+%                   x1bar = T1\R1'*x1bar;
                   x1bar = x1bar/x1bar(3);
+%                   x2bar = T1\R2'*x2bar;
                   x2bar = inv(T2)*R2'*x2bar;
                   x2bar = x2bar/x2bar(3);
                   x1res(:,i)=x1bar(1:2);

@@ -4,7 +4,7 @@ clear
 %% load images and match files for the first example
 %%
 name = 'house';
-loadStructure = false;
+loadStructure = true;
 addpath('Auxilary Functions\');
 I1 = imread(['./Data/',name,'1.jpg']);
 I2 = imread(['./Data/',name,'2.jpg']);
@@ -83,11 +83,11 @@ x2_optimal = normalizeVectorHomogeneous(x2_optimal);
 %% MSE Optimal
 mse1_optimal = meanSquaredError(x1_optimal(1:2,:),matches(:,1:2)');
 mse2_optimal = meanSquaredError(x2_optimal(1:2,:),matches(:,3:4)');
-mse_optimal = mse2_optimal
+mse_optimal = mse2_optimal+mse2_optimal
 %% MSE Linear
 mse1_linear = meanSquaredError(x1_linear(1:2,:),matches(:,1:2)');
 mse2_linear = meanSquaredError(x2_linear(1:2,:),matches(:,3:4)');
-mse_linear = mse2_linear
+mse_linear = mse2_linear+mse2_linear
 %% Plot back Projected points Optimal
 figure;
 imshow(I1);

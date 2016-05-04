@@ -32,5 +32,11 @@ M = load('./Data/measurement_matrix.txt');
     figure;
     plot3(S(1,:),S(2,:),S(3,:),'.b')
     axis equal
-
+    Mhat = R*S;
+    dif = M-Mhat;
+    mse = sum(dif.^2,2)/size(M,2);
+    msec = mse(1:F,:)+mse(F+1:end,:);
+    plot(1:size(msec,1),msec);
+    title('MSE per Frame')
+    
 
