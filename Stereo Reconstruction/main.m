@@ -4,7 +4,7 @@ clear
 %% load images and match files for the first example
 %%
 name = 'house';
-loadStructure = true;
+loadStructure = false;
 addpath('Auxilary Functions\');
 I1 = imread(['./Data/',name,'1.jpg']);
 I2 = imread(['./Data/',name,'2.jpg']);
